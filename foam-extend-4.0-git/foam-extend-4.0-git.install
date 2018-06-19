@@ -1,0 +1,13 @@
+post_install(){
+  echo "NOTE:"
+  echo ""
+  echo ===================================
+  echo To use foam-extend-4.0 paste the following code into your ~/.bashrc file:
+  echo "alias fe40='export FOAM_INST_DIR=/opt/%DISTPKGNAME%; source \${FOAM_INST_DIR}/%PKGNAME%/etc/bashrc'"
+  echo Whenever you want to use foam-extend-4.0 type fe40 in your terminal to initialize the environment.
+  echo ===================================
+}
+
+post_upgrade(){
+  post_install
+}
