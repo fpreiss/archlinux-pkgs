@@ -1,0 +1,28 @@
+pkgbase = foam-extend-4.0-git
+	pkgdesc = A fork of the OpenFOAM open source library with an extended featureset
+	pkgver = v4.0.r187.gefcc2b1b7
+	pkgrel = 1
+	url = foam-extend.org
+	arch = x86_64
+	license = GPLv3
+	makedepends = git
+	makedepends = flex
+	makedepends = cmake
+	makedepends = make
+	makedepends = rpm-org
+	makedepends = wget
+	makedepends = gcc5
+	depends = pacman>=5.0
+	depends = yajl>=2.0
+	depends = openmpi
+	depends = qt5-base
+	depends = python2-virtualenv
+	optdepends = python2-numpy
+	source = git+https://git.code.sf.net/p/foam-extend/foam-extend-4.0
+	source = foam-extend-4.0-git.install
+	sha256sums = SKIP
+	sha256sums = 08168af877871ae55ca271350ee18c7359db2c5e55f2ae1e9337f298e65deeb4
+
+pkgname = foam-extend-4.0-git
+	install = foam-extend-4.0-git.install
+
