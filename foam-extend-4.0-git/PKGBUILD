@@ -90,7 +90,7 @@ package(){
     s|%PKGNAME%|${_pkgname}|g
   "
   # hack to allow specifying an initially nonexisting install file
-  sed "${_subst}" "${startdir}/${install}" > "${startdir}/${install}.pkg"
+  sed "${_subst}" "../${install}" > "../${install}.pkg"
   true && install=${install}.pkg
 
   cd ${srcdir}
