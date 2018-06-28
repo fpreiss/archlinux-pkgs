@@ -1,0 +1,73 @@
+# Maintainer: Fabian Preiss <fpreiss .ATT. uni-wuppertal_dot_de>
+
+_distpkgname=OpenFOAM
+_pkgname=foam-extend-4.0
+pkgname=foam-extend-git
+pkgver=v4.0.r187.gefcc2b1b7
+pkgrel=1
+pkgdesc="A fork of the OpenFOAM open source library with an extended featureset"
+arch=('x86_64')
+url="http://foam-extend.org"
+license=('GPL3')
+depends=('yajl>=2.0' 'openmpi' 'qt4' 'python2-virtualenv')
+optdepends=('python2-numpy')
+makedepends=('git' 'cmake' 'rpm-org' 'wget' 'gcc5' 'mercurial')
+install="$pkgname.install"
+source=("git+https://git.code.sf.net/p/foam-extend/$_pkgname"
+        "src.patch"
+        "swak4F-0.4.0.patch"
+)
+sha256sums=('SKIP'
+            'e72b7472c465c8146b06c4146baaa5a03ea3bc7b1af50ed582c5a83b5bae45a2'
+            'd808fc2cf51989225507d36100446dc471660b1e4875ef3f4a8f442f70b604d5'
+)
+
+pkgver(){
+  cd "$srcdir/$_pkgname"
+  # Get the version number.
+  git describe --long | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+}
+
+prepare(){
+  export "FOAM_INST_DIR=$srcdir"
+  patch -p1 < src.patch
+  ln -s swak4F-0.4.0.patch foam-extend-4.0/ThirdParty/swak4F-0.4.0.patch
+  cd "$srcdir"
+  cd "$_pkgname"
+  mv etc/prefs.sh-EXAMPLE etc/prefs.sh
+
+  # create a python2 environment to be compatible with pyfoam
+  virtualenv2 -p python2.7 --system-site-packages ./
+}
+
+build(){
+  export "FOAM_INST_DIR=$srcdir"
+  foamDotFile="$srcdir/$_pkgname/etc/bashrc"
+  source "$foamDotFile"
+
+  # Enter build directory
+  cd "$srcdir/$_pkgname"
+
+  # Build and clean up OpenFOAM
+  ./Allwmake.firstInstall
+  ./Allwmake doc
+  wclean all
+  wmakeLnIncludeAll
+  echo "export SWAK4FOAM_SRC=\$FOAM_INST_DIR/$_pkgname/ThirdParty/rpmBuild/BUILD/swak4Foam-0.4.0/Libraries" >> "$srcdir/$_pkgname/etc/bashrc"
+}
+
+package(){
+  cd "$srcdir"
+
+  # Create destination directories
+  install -d "$pkgdir/opt/$_distpkgname"
+
+  # copy package to pkgdir
+  cp -r "$srcdir/$_pkgname" "$pkgdir/opt/$_distpkgname"
+  cp -r "$srcdir/site" "$pkgdir/opt/$_distpkgname"
+
+  # Permission fixes - for system-wide install and use
+  chmod -R go+r "$pkgdir/opt"
+  chmod -R 755 "$pkgdir/opt/$_distpkgname/$_pkgname/bin"
+  chmod -R 755 "$pkgdir/opt/$_distpkgname/$_pkgname/etc"
+}

@@ -1,0 +1,10 @@
+--- rpmBuild/BUILD/swak4Foam-0.4.0/Libraries/Allwmake	2018-06-27 00:21:12.369618485 +0200
++++ rpmBuild/BUILD/swak4Foam-0.4.0/Libraries/Allwmake	2018-06-27 13:05:07.405901247 +0200
+@@ -145,6 +145,7 @@ then
+     done
+ 
+     wmake libso swakFiniteArea
++    wmake libso swakStateMachine
+ fi
+ 
+ wmake libso groovyStandardBCs
