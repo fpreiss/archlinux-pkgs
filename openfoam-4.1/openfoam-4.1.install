@@ -1,0 +1,26 @@
+# arg 1:  the new package version
+post_install() {
+  echo "NOTE:"
+  echo ""
+  echo "This installation of OpenFOAM provides the full"
+  echo "functionality of the ThirdParty components."
+  echo "Due to some errors in the compilation process,"
+  echo "the foamyQuadMesh module in the set of utility"
+  echo "applications is skipped."
+  echo ""
+  echo "As openfoam-4.1 relies on some depricated APIs of"
+  echo "paraview, an older, compatible version of paraview"
+  echo "is provided with the ThirdParty directory."
+  echo ""
+  echo ===================================
+  echo To use openfoam-4.1 paste the following code into your ~/.bashrc file:
+  echo "alias of41='export FOAM_INST_DIR=/opt/OpenFOAM; source \${FOAM_INST_DIR}/OpenFOAM-4.1/etc/bashrc'"
+  echo Whenever you want to use openfoam-4.1 type of41 in your terminal to initialize the environment.
+  echo ===================================
+}
+
+# arg 1:  the new package version
+# arg 2:  the old package version
+post_upgrade() {
+  post_install $1
+}

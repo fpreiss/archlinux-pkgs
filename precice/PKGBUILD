@@ -1,0 +1,69 @@
+# Maintainer: Fabian Preiss <fpreiss .ATT. uni-wuppertal_dot_de>
+#https://github.com/precice/precice/wiki/Building
+pkgname=precice
+pkgver=v1.2.0
+_PRECICE_ROOT="$pkgname-${pkgver:1}"
+pkgrel=1
+pkgdesc="A Coupling Library for Partitioned Multi-Physics Simulations on Massively Parallel Systems"
+arch=('x86_64')
+url="https://www.precice.org"
+license=('LGPL3')
+depends=('scons' 'eigen' 'boost' 'libxml2' 'petsc' 'python2' 'openmpi')
+install="$pkgname.install"
+source=("https://github.com/precice/precice/archive/$pkgver.tar.gz")
+sha256sums=('0784ecd002092949835151b90393beb6e9e7a3e9bd78ffd40d18302d6da4b05b')
+
+build(){
+    # Eigen
+    export CPLUS_INCLUDE_PATH="/usr/include/eigen3:$CPLUS_INCLUDE_PATH"
+
+    # PETSc
+    export PETSC_DIR=/opt/petsc
+    export PETSC_ARCH=linux-c-opt
+    export LD_LIBRARY_PATH="$PETSC_DIR/$PETSC_ARCH/lib:$LD_LIBRARY_PATH"
+    export CPATH="$PETSC_DIR/$PETSC_ARCH/include:$CPATH"
+    export LIBRARY_PATH="$PETSC_DIR/$PETSC_ARCH/lib:$LIBARY_PATH"
+    export PYTHONPATH="$PETSC_DIR/$PETSC_ARCH/lib:$PYTHONPATH"
+
+    # preCICE
+    export PRECICE_ROOT="$srcdir/$_PRECICE_ROOT"
+    cd "$PRECICE_ROOT"
+    scons mpi=on petsc=on python=on compiler="mpicxx" build=Debug -j"$(nproc)"
+    cd "${PRECICE_ROOT}/build/last/"
+}
+
+package(){
+    # Set global environment variable $PRECICE_ROOT
+    export PRECICE_ROOT="$srcdir/$_PRECICE_ROOT"
+    cd "${PRECICE_ROOT}/build/last/"
+
+    # package all files to installation directory
+    ## includes
+    install -dm755 "${pkgdir}/usr/include/precice/bindings/"{c,f2003,fortran}
+    install -m755 "${PRECICE_ROOT}/src/precice/"{Constants,MeshHandle,SolverInterface}.hpp "${pkgdir}/usr/include/precice/"
+    cd "${PRECICE_ROOT}/src/precice/bindings/"
+    dirs=(*)
+    nr_dirs=${#dirs[@]}
+    for (( i=0; i<${nr_dirs}-1; i++ ));
+    do
+        cd "${dirs[$i]}"
+        for j in `find . -iregex '.*\.\(h\|f90\|hpp\)$' -type f`; do
+            install -Dm655 "$j" "${pkgdir}/usr/include/precice/bindings/${dirs[$i]}/"
+        done
+        cd ..
+    done
+
+    ## libraries
+    install -dm755 "${pkgdir}/usr/lib/pkgconfig"
+    install -Dm655 "${PRECICE_ROOT}/tools/packaging/Ubuntu_18.04/debian/usr/lib/x86_64-linux-gnu/pkgconfig/precice.pc" "${pkgdir}/usr/lib/pkgconfig/"
+    install -Dm655 "${PRECICE_ROOT}/build/last/libprecice.so" "${pkgdir}/usr/lib/libprecice.so.1.1.1"
+    ln -s "${pkgdir}/usr/lib/libprecice.so.1.1.1" "${pkgdir}/usr/lib/libprecice.so.1.1"
+    ln -s "${pkgdir}/usr/lib/libprecice.so.1.1.1" "${pkgdir}/usr/lib/libprecice.so"
+
+    ## docs
+    install -dm755 "${pkgdir}/usr/share/doc/precice/"
+    cd "${PRECICE_ROOT}/docs/documents"
+    for file in *; do
+        install -Dm655 $file "${pkgdir}/usr/share/doc/precice/"
+    done
+}

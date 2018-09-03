@@ -1,0 +1,79 @@
+# Maintainer: Fabian Preiss <fpreiss .ATT. uni-wuppertal_dot_de>
+# Contributor: Jingbei Li <i@jingbei.li>
+# Contributor: Xwang <xwaang1976@gmail.com>
+# Contributor: George Eleftheriou <eleftg>
+# Contributor: Andrew Fischer <andrew_at_apastron.co>
+
+pkgname=openfoam-4.1
+
+# The distributors package name
+_distpkgname=OpenFOAM
+_gitbranch=4.x
+_gitopenfoam=$_distpkgname-$_gitbranch
+_gitthrdpart=ThirdParty-$_gitbranch
+
+
+pkgver=4.1
+pkgrel=1
+pkgdesc="The open source CFD toolbox"
+arch=('x86_64')
+url="http://www.openfoam.org"
+license=("GPL")
+depends=('bzip2' 'parmetis' 'scotch' 'boost' 'flex' 'cgal' 'qt4')
+source=("openfoam-4.1.tar.gz::https://github.com/OpenFOAM/$_gitopenfoam/archive/version-$pkgver.tar.gz"
+        "thrdpart-4.1.tar.gz::https://github.com/OpenFOAM/$_gitthrdpart/archive/version-$pkgver.tar.gz"
+        "src.patch"
+)
+#https://openfoamwiki.net/index.php/Installation/Linux/OpenFOAM-4.x
+install="${pkgname}.install"
+sha256sums=('2de18de64e7abdb1b649ad8e9d2d58b77a2b188fb5bcb6f7c2a038282081fd31'
+            'a337794f3eba3fec7ed236e220a9e7b18c5171f5211fd9dd4a2e547d4780cc52'
+            '4ec0bb2499ad03e82cc44d1bb04ae852d783bb75aad49f6befcdb87cb2de7012'
+)
+
+prepare() {
+  mv "$srcdir/$_gitopenfoam-version-$pkgver" "$srcdir/$_distpkgname-$pkgver"
+  mv "$srcdir/$_gitthrdpart-version-$pkgver" "$srcdir/ThirdParty-$pkgver"
+  patch -p1 < src.patch
+  echo "export QT_SELECT=qt4" >> "$srcdir/$_distpkgname-$pkgver/etc/bashrc"
+  sed -i 's/wmake foamyQuadMesh/# wmake foamyQuadMesh/g'  "$srcdir/$_distpkgname-$pkgver/applications/utilities/mesh/generation/foamyMesh/Allwmake"
+}
+
+build() {
+  # Setup the build environment
+  export FOAM_INST_DIR="$srcdir"
+  foamDotFile="$srcdir/$_distpkgname-$pkgver/etc/bashrc"
+  
+  #problem in next line with current /etc/config.sh/settings patch
+  [ -f "$foamDotFile" ] && . "$foamDotFile"
+  # Enter build directory of ThirdParty
+  cd "$srcdir/ThirdParty-$pkgver"
+  # Installing Scotch/PT-Scotch
+  ./Allwmake
+  # Installing ParaView
+  ./makeParaView
+
+  [ -f "$foamDotFile" ] && . "$foamDotFile"
+  cd "$srcdir/$_distpkgname-$pkgver"
+  # Build and clean up OpenFOAM
+  ./Allwmake
+  wclean all
+  wmakeLnIncludeAll
+}
+
+
+package() {
+  cd "$srcdir"
+
+  # Create destination directories
+  install -d "$pkgdir/opt/$_distpkgname" "$pkgdir/etc/profile.d" || return 1
+
+  # copy package to pkgdir
+  cp -r "$srcdir/$_distpkgname-$pkgver" "$pkgdir/opt/$_distpkgname" || return 1
+  cp -r "$srcdir/ThirdParty-$pkgver" "$pkgdir/opt/$_distpkgname" || return 1
+
+  # Permission fixes - for system-wide install and use
+  chmod -R go+r "$pkgdir/opt"
+  chmod -R 755 "$pkgdir/opt/$_distpkgname/$_distpkgname-$pkgver/bin"
+  chmod -R 755 "$pkgdir/opt/$_distpkgname/$_distpkgname-$pkgver/etc"
+}
