@@ -1,139 +1,44 @@
-diff -rupN src/foam-extend-4.0/etc/bashrc src/foam-extend-4.0/etc/bashrc
---- src/foam-extend-4.0/etc/bashrc	2018-06-20 01:52:27.856934810 +0200
-+++ src/foam-extend-4.0/etc/bashrc	2018-06-20 03:22:27.347640964 +0200
-@@ -1,3 +1,4 @@
-+echo Bash file is being sourced
- #!/bin/bash
- #----------------------------------*-sh-*--------------------------------------
- # =========                 |
-@@ -47,7 +48,7 @@ export FOAM_DEV=1
- #
- # Location of FOAM installation
- # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
--foamInstall=$HOME/$WM_PROJECT
-+# foamInstall=$HOME/$WM_PROJECT
- # foamInstall=~$WM_PROJECT
- # foamInstall=/usr/local/$WM_PROJECT
- # foamInstall=/opt/$WM_PROJECT
-@@ -566,3 +567,4 @@ unset cleanEnv cleanProg foamInstall foa
- unset _foamSource
+diff -rupN src/foam-extend-git/src/decompositionMethods/parMetisDecomp/Make/options src/foam-extend-git/src/decompositionMethods/parMetisDecomp/Make/options
+--- src/foam-extend-git/src/decompositionMethods/parMetisDecomp/Make/options    2019-01-28 01:10:29.974460482 +0100
++++ src/foam-extend-git/src/decompositionMethods/parMetisDecomp/Make/options    2019-01-28 01:11:51.747793112 +0100
+@@ -12,4 +12,4 @@ LIB_LIBS = \
+     -L$(PARMETIS_LIB_DIR) -lmetis -lparmetis \
+     -ldecompositionMethods \
+     -lmetisDecomp \
+-    -L$(OPENMPI_DIR)/lib -lmpi
++    -L$(OPENMPI_LIB_DIR) -lmpi
+diff -rupN src/foam-extend-git/src/fvAgglomerationMethods/MGridGenGamgAgglomeration/Make/options src/foam-extend-git/src/fvAgglomerationMethods/MGridGenGamgAgglomeration/Make/options 
+--- src/foam-extend-git/src/fvAgglomerationMethods/MGridGenGamgAgglomeration/Make/options   2019-01-28 01:19:52.257789089 +0100
++++ src/foam-extend-git/src/fvAgglomerationMethods/MGridGenGamgAgglomeration/Make/options   2019-01-28 03:22:08.624394281 +0100
+@@ -22,11 +22,10 @@ LIB_LIBS = \
  
- # -----------------------------------------------------------------------------
-+source $FOAM_INST_DIR/foam-extend-4.0/bin/activate
-diff -rupN src/foam-extend-4.0/etc/prefs.sh-EXAMPLE src/foam-extend-4.0/etc/prefs.sh-EXAMPLE
---- src/foam-extend-4.0/etc/prefs.sh-EXAMPLE	2018-06-20 01:52:27.856934810 +0200
-+++ src/foam-extend-4.0/etc/prefs.sh-EXAMPLE	2018-06-20 03:22:27.360974331 +0200
-@@ -149,8 +149,8 @@ export FOAM_VERBOSE=1
- # proper values.
- #
- #export QT_THIRD_PARTY=1
--#export QT_DIR=path_to_system_installed_qt
--#export QT_BIN_DIR=$QT_DIR/bin
-+export QT_DIR=/usr
-+export QT_BIN_DIR=$QT_DIR/bin
+ EXE_INC = \
+     -I$(LIB_SRC)/finiteVolume/lnInclude \
+-    -I$(PARMGRIDGEN_INCLUDE_DIR)/Lib    \
+-    -I$(PARMGRIDGEN_INCLUDE_DIR)/IMlib  \
++    -I$(PARMGRIDGEN_INCLUDE_DIR)    \
+     $(TYPE_REAL)
  
- # System installed ParaView
- #export PARAVIEW_SYSTEM=1
-diff -rupN src/foam-extend-4.0/src/Allwmake src/foam-extend-4.0/src/Allwmake
---- src/foam-extend-4.0/src/Allwmake	2018-06-20 01:52:27.860268151 +0200
-+++ src/foam-extend-4.0/src/Allwmake	2018-06-20 03:22:27.374307696 +0200
-@@ -36,7 +36,7 @@ wmake libso edgeMesh
- wmake libso surfMesh
+ LIB_LIBS = \
+-    -L$(PARMGRIDGEN_LIB_DIR) -lMGridGen
++    -L$(PARMGRIDGEN_LIB_DIR) -lmgrid
  
- wmake libso meshTools
--wmake libso finiteVolume
-+export WM_CXX='g++-5'; export WM_CC='gcc-5'; wmake libso finiteVolume;export WM_CXX='g++'; export WM_CC='gcc'
- wmake libso finiteArea
+ #endif
+diff -rupN src/foam-extend-git/src/dbns/Make/options src/foam-extend-git/src/dbns/Make/options 
+--- src/foam-extend-git/src/dbns/Make/options       2019-01-28 01:19:52.084455758 +0100
++++ src/foam-extend-git/src/dbns/Make/options       2019-01-28 03:22:28.257727450 +0100
+@@ -19,13 +19,12 @@ EXE_INC = \
+     -I$(LIB_SRC)/meshTools/lnInclude \
+     -I$(LIB_SRC)/thermophysicalModels/basic/lnInclude \
+     -I$(LIB_SRC)/turbulenceModels/compressible/turbulenceModel \
+-    -I$(PARMGRIDGEN_INCLUDE_DIR)/IMlib \
+-    -I$(PARMGRIDGEN_INCLUDE_DIR)/Lib
++    -I$(PARMGRIDGEN_INCLUDE_DIR)
  
- wmake libso lduSolvers
-@@ -68,7 +68,7 @@ wmake libso errorEstimation
+ LIB_LIBS = \
+     -lfiniteVolume \
+     -lmeshTools \
+-    -L$(PARMGRIDGEN_LIB_DIR) -lIMlib -lMGridGen
++    -L$(PARMGRIDGEN_LIB_DIR) -lmgrid
  
- fvAgglomerationMethods/Allwmake
- 
--wmake libso engine
-+export WM_CXX='g++-5'; export WM_CC='gcc-5'; wmake libso engine;export WM_CXX='g++'; export WM_CC='gcc'
- 
- wmake libso equationReader
- wmake libso multiSolver
-diff -rupN src/foam-extend-4.0/ThirdParty/AllMake.stage4 src/foam-extend-4.0/ThirdParty/AllMake.stage4
---- src/foam-extend-4.0/ThirdParty/AllMake.stage4	2018-06-20 01:52:27.623600990 +0200
-+++ src/foam-extend-4.0/ThirdParty/AllMake.stage4	2018-06-20 03:22:27.370974355 +0200
-@@ -74,7 +74,7 @@ fi
- if [ -z "$PARAVIEW_SYSTEM" ]
- then
-      # Make sure we get the value of QT_BIN_DIR initialized
--     . $WM_PROJECT_DIR/etc/settings.sh
-+     . $WM_PROJECT_DIR/etc/settings.sh; export WM_CXX='g++-5'; export WM_CC='gcc-5'
- 
-     if [ -d "$QT_BIN_DIR" -a -r "$QT_BIN_DIR"/qmake ]
-     then
-@@ -153,7 +153,7 @@ fi
- 
- 
- echo ========================================
--echo Done ThirdParty AllMake: Stage4
-+export WM_CXX='g++'; export WM_CC='gcc'; echo Done ThirdParty AllMake: Stage4
- echo ========================================
- echo
- 
-diff -rupN src/foam-extend-4.0/ThirdParty/AllMake.stage5 src/foam-extend-4.0/ThirdParty/AllMake.stage5
---- src/foam-extend-4.0/ThirdParty/AllMake.stage5	2018-06-20 01:52:27.623600990 +0200
-+++ src/foam-extend-4.0/ThirdParty/AllMake.stage5	2018-06-20 03:22:27.377641037 +0200
-@@ -102,7 +102,7 @@ then
-         (cd ./rpmBuild/BUILD/swak4Foam-$SWAK_RELEASE_VERSION; find . -name options | xargs -n 1 sed -i.old "s/FOAM_USER/FOAM_SITE/g")
- 
-         # We recompile everything
--        (cd ./rpmBuild/BUILD/swak4Foam-$SWAK_RELEASE_VERSION; ./Allwclean; ./Allwmake)
-+        (patch -p1 < swak4F-0.4.0.patch; cd ./rpmBuild/BUILD/swak4Foam-$SWAK_RELEASE_VERSION; ln -s swakConfiguration.automatic swakConfiguration; ./maintainanceScripts/compileRequirements.sh; ./Allwclean; ./Allwmake)
-     else
-         echo "The source code for swak4Foam is already present under ./rpmBuild/BUILD/swak4Foam-$SWAK_RELEASE_VERSION"
-         echo "Please remove this directory if you want to refresh your installation of swak4Foam"
-diff -rupN src/foam-extend-4.0/wmake/rules/linux64Gcc/c src/foam-extend-4.0/wmake/rules/linux64Gcc/c
---- src/foam-extend-4.0/wmake/rules/linux64Gcc/c	2018-06-20 01:52:28.976937148 +0200
-+++ src/foam-extend-4.0/wmake/rules/linux64Gcc/c	2018-06-20 03:22:27.360974331 +0200
-@@ -2,7 +2,7 @@
- 
- cWARN        = -Wall
- 
--cc          = gcc -m64
-+cc          = $(WM_CC)
- 
- include $(RULES)/c$(WM_COMPILE_OPTION)
- 
-diff -rupN src/foam-extend-4.0/wmake/rules/linux64Gcc/c++ src/foam-extend-4.0/wmake/rules/linux64Gcc/c++
---- src/foam-extend-4.0/wmake/rules/linux64Gcc/c++	2018-06-20 01:52:28.976937148 +0200
-+++ src/foam-extend-4.0/wmake/rules/linux64Gcc/c++	2018-06-20 03:22:27.364307672 +0200
-@@ -2,7 +2,7 @@
- 
- c++WARN     = -Wall -Wextra -Wno-unused-parameter -Wold-style-cast -Wnon-virtual-dtor
- 
--CC          = g++ -m64
-+CC          = $(WM_CXX)
- 
- include $(RULES)/c++$(WM_COMPILE_OPTION)
- 
-diff -rupN src/foam-extend-4.0/bin/foamGetSystemInfo src/foam-extend-4.0/bin/foamGetSystemInfo
---- src/foam-extend-4.0/bin/foamGetSystemInfo      2018-06-26 22:40:43.000000000 +0200
-+++ src/foam-extend-4.0/bin/foamGetSystemInfo   2018-06-26 22:43:07.469667754 +0200
-@@ -60,21 +60,15 @@ getNbrCores()
-     # Minimal number of cores. Can be as low as 1 on virtual machines
-     nbrCores=1
- 
--    # First choice above all: using lstopo from the hwloc package
--    if command -v lstopo >/dev/null; then
--        nbrCores=`lstopo --of console | grep -c Core`
--    else
--        # Using some architecture specific heuristics
-     case `uname -s` in
-         Linux)
-             # Warning: this will be wrong if Hyperthreading is enable
--            nbrCores=`grep -c processor /proc/cpuinfo`
-+            nbrCores=`nproc`
-         ;;
-         Darwin)
-             nbrCores=`sysctl -n hw.physicalcpu`
-         ;;
-     esac
--    fi
-     echo $nbrCores
- }
+ #endif
