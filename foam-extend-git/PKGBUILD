@@ -1,59 +1,79 @@
 # Maintainer: Fabian Preiss <fpreiss .ATT. uni-wuppertal_dot_de>
 
 _distpkgname=OpenFOAM
-_pkgname=foam-extend-4.0
+_pkgname=foam-extend-4
+_pyFoamVer=0.6.9
+_mesquiteVer=2.3.0
 pkgname=foam-extend-git
-pkgver=v4.0.r187.gefcc2b1b7
+pkgver=v4.0.r1225.g67e2f8313
 pkgrel=1
 pkgdesc="A fork of the OpenFOAM open source library with an extended featureset"
 arch=('x86_64')
 url="http://foam-extend.org"
 license=('GPL3')
-depends=('yajl>=2.0' 'openmpi' 'qt4' 'python2-virtualenv')
-optdepends=('python2-numpy')
-makedepends=('git' 'cmake' 'rpm-org' 'wget' 'gcc5' 'mercurial')
+depends=('parmetis' 'mgridgen' 'scotch' 'tcsh' 'python-numpy')
+makedepends=('git' 'cmake' 'rpm-org' 'mercurial' 'python-setuptools')
+optdepends=('trilinos' 'llvm' 'clang' 'paraview')
+provides=('swak4Foam=0.4.2' 'PyFoam=0.6.9' 'mesquite=2.3.0')
 install="$pkgname.install"
-source=("git+https://git.code.sf.net/p/foam-extend/$_pkgname"
+source=("git+https://git.code.sf.net/p/foam-extend/$_pkgname.0#branch=nextRelease"
+        "tools.patch"
         "src.patch"
-        "swak4F-0.4.0.patch"
+        "applications.patch"
+        "ThirdParty.patch"
+        "mesquite.patch"
+        "prefs.sh"
+        "https://software.sandia.gov/mesquite/mesquite-$_mesquiteVer.tar.gz"
+        "https://files.pythonhosted.org/packages/78/f5/8f65b66c8ac0e5415f785809e182dd0f0dc562a42094e1a86bd22c7d7ece/PyFoam-$_pyFoamVer.tar.gz"
+        "swak4Foam-0.4.2::hg+http://hg.code.sf.net/p/openfoam-extend/swak4Foam#tag=compile_foamExtend4.1"
 )
+
 sha256sums=('SKIP'
-            'e72b7472c465c8146b06c4146baaa5a03ea3bc7b1af50ed582c5a83b5bae45a2'
-            'd808fc2cf51989225507d36100446dc471660b1e4875ef3f4a8f442f70b604d5'
+            'a7ecdc0f2654b74235c94e8f4758993a2d0a334a9631e591fb4c0b9ab1390a66'
+            'e68e0c4fe4e9bafe5744929df48d3aed0614075de4d69b813c12acebd6fc61b8'
+            '9092c49b0f37b26a8523df4ecd020b56948d93b46ad39715b33f7f630eb9b0e1'
+            'd9fe24b6b6f790a247b22171937274992efbd14726ba3afd3502cfcc39a515be'
+            'd08637f685949bc62a1f2e910f11e825ef461d1f98f9f15ffd24e963d325b26d'
+            '9a8ebe1ce0345386230081496d4bd2fe319550ad9ad59b12bdbe9664dec749d6'
+            '4ab4ceadfa596e16c00dbb0e8b830a9112fa1b73291ca07633ec379a39b8bb28'
+            'c81371eb5df2683d4e0fc33f35a3703cd782706bf1352b4d638062eecb536b67'
+            'SKIP'
 )
 
 pkgver(){
-  cd "$srcdir/$_pkgname"
+  cd "$srcdir/$pkgname"
   # Get the version number.
   git describe --long | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
 }
 
 prepare(){
   export "FOAM_INST_DIR=$srcdir"
+  mv mesquite-$_mesquiteVer.tar.gz "$srcdir/$_pkgname.0/ThirdParty/rpmBuild/SOURCES/"
+  mv PyFoam-$_pyFoamVer.tar.gz "$srcdir/$_pkgname.0/ThirdParty/rpmBuild/SOURCES/"
+  mv swak4Foam-0.4.2 "$srcdir/$_pkgname.0/ThirdParty/rpmBuild/BUILD/"
+  mv -n "$_pkgname.0" "$pkgname"
+  patch -p1 < tools.patch
   patch -p1 < src.patch
-  ln -s swak4F-0.4.0.patch foam-extend-4.0/ThirdParty/swak4F-0.4.0.patch
+  patch -p1 < applications.patch
+  patch -p1 < ThirdParty.patch
+  cp prefs.sh "$srcdir/$pkgname/etc/"
   cd "$srcdir"
-  cd "$_pkgname"
-  mv etc/prefs.sh-EXAMPLE etc/prefs.sh
-
-  # create a python2 environment to be compatible with pyfoam
-  virtualenv2 -p python2.7 --system-site-packages ./
+  cd "$pkgname"
 }
+
 
 build(){
   export "FOAM_INST_DIR=$srcdir"
-  foamDotFile="$srcdir/$_pkgname/etc/bashrc"
+  foamDotFile="$srcdir/$pkgname/etc/bashrc"
   source "$foamDotFile"
-
   # Enter build directory
-  cd "$srcdir/$_pkgname"
+  cd "$srcdir/$pkgname"
 
   # Build and clean up OpenFOAM
   ./Allwmake.firstInstall
-  ./Allwmake doc
+  ./Allwmake #doc 
   wclean all
   wmakeLnIncludeAll
-  echo "export SWAK4FOAM_SRC=\$FOAM_INST_DIR/$_pkgname/ThirdParty/rpmBuild/BUILD/swak4Foam-0.4.0/Libraries" >> "$srcdir/$_pkgname/etc/bashrc"
 }
 
 package(){
@@ -63,11 +83,13 @@ package(){
   install -d "$pkgdir/opt/$_distpkgname"
 
   # copy package to pkgdir
-  cp -r "$srcdir/$_pkgname" "$pkgdir/opt/$_distpkgname"
+  cp -r "$srcdir/$pkgname" "$pkgdir/opt/$_distpkgname"
   cp -r "$srcdir/site" "$pkgdir/opt/$_distpkgname"
 
   # Permission fixes - for system-wide install and use
   chmod -R go+r "$pkgdir/opt"
-  chmod -R 755 "$pkgdir/opt/$_distpkgname/$_pkgname/bin"
-  chmod -R 755 "$pkgdir/opt/$_distpkgname/$_pkgname/etc"
+  chmod -R 755 "$pkgdir/opt/$_distpkgname/$pkgname/bin"
+  chmod -R 755 "$pkgdir/opt/$_distpkgname/$pkgname/ThirdParty/packages/mesquite-$_mesquiteVer/platforms/linux64GccDPOpt/bin"
+  chmod -R 755 "$pkgdir/opt/$_distpkgname/$pkgname/ThirdParty/packages/PyFoam-$_pyFoamVer/platforms/noarch/bin"
+  chmod -R 755 "$pkgdir/opt/$_distpkgname/site/4.1/bin"
 }

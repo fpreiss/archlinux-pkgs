@@ -1,9 +1,9 @@
 post_install(){
   echo "NOTE:"
   echo ===================================
-  echo To use foam-extend-4.0 paste the following code into your ~/.bashrc file:
-  echo "alias fe40='export FOAM_INST_DIR=/opt/OpenFOAM; source \${FOAM_INST_DIR}/foam-extend-4.0/etc/bashrc'"
-  echo Whenever you want to use foam-extend-4.0 type fe40 in your terminal to initialize the environment.
+  echo To use foam-extend-git paste the following code into your ~/.bashrc file:
+  echo "alias fegit='export FOAM_INST_DIR=/opt/OpenFOAM; source \${FOAM_INST_DIR}/foam-extend-git/etc/bashrc'"
+  echo Whenever you want to use foam-extend-git type fegit in your terminal to initialize the environment.
   echo ===================================
 }
 

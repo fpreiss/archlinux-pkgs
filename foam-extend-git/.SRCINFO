@@ -1,6 +1,6 @@
 pkgbase = foam-extend-git
 	pkgdesc = A fork of the OpenFOAM open source library with an extended featureset
-	pkgver = v4.0.r187.gefcc2b1b7
+	pkgver = v4.0.r1225.g67e2f8313
 	pkgrel = 1
 	url = http://foam-extend.org
 	install = foam-extend-git.install
@@ -9,20 +9,40 @@ pkgbase = foam-extend-git
 	makedepends = git
 	makedepends = cmake
 	makedepends = rpm-org
-	makedepends = wget
-	makedepends = gcc5
 	makedepends = mercurial
-	depends = yajl>=2.0
-	depends = openmpi
-	depends = qt4
-	depends = python2-virtualenv
-	optdepends = python2-numpy
-	source = git+https://git.code.sf.net/p/foam-extend/foam-extend-4.0
+	makedepends = python-setuptools
+	depends = parmetis
+	depends = mgridgen
+	depends = scotch
+	depends = tcsh
+	depends = python-numpy
+	optdepends = trilinos
+	optdepends = llvm
+	optdepends = clang
+	optdepends = paraview
+	provides = swak4Foam=0.4.2
+	provides = PyFoam=0.6.9
+	provides = mesquite=2.3.0
+	source = git+https://git.code.sf.net/p/foam-extend/foam-extend-4.0#branch=nextRelease
+	source = tools.patch
 	source = src.patch
-	source = swak4F-0.4.0.patch
+	source = applications.patch
+	source = ThirdParty.patch
+	source = mesquite.patch
+	source = prefs.sh
+	source = https://software.sandia.gov/mesquite/mesquite-2.3.0.tar.gz
+	source = https://files.pythonhosted.org/packages/78/f5/8f65b66c8ac0e5415f785809e182dd0f0dc562a42094e1a86bd22c7d7ece/PyFoam-0.6.9.tar.gz
+	source = swak4Foam-0.4.2::hg+http://hg.code.sf.net/p/openfoam-extend/swak4Foam#tag=compile_foamExtend4.1
 	sha256sums = SKIP
-	sha256sums = e72b7472c465c8146b06c4146baaa5a03ea3bc7b1af50ed582c5a83b5bae45a2
-	sha256sums = d808fc2cf51989225507d36100446dc471660b1e4875ef3f4a8f442f70b604d5
+	sha256sums = a7ecdc0f2654b74235c94e8f4758993a2d0a334a9631e591fb4c0b9ab1390a66
+	sha256sums = e68e0c4fe4e9bafe5744929df48d3aed0614075de4d69b813c12acebd6fc61b8
+	sha256sums = 9092c49b0f37b26a8523df4ecd020b56948d93b46ad39715b33f7f630eb9b0e1
+	sha256sums = d9fe24b6b6f790a247b22171937274992efbd14726ba3afd3502cfcc39a515be
+	sha256sums = d08637f685949bc62a1f2e910f11e825ef461d1f98f9f15ffd24e963d325b26d
+	sha256sums = 9a8ebe1ce0345386230081496d4bd2fe319550ad9ad59b12bdbe9664dec749d6
+	sha256sums = 4ab4ceadfa596e16c00dbb0e8b830a9112fa1b73291ca07633ec379a39b8bb28
+	sha256sums = c81371eb5df2683d4e0fc33f35a3703cd782706bf1352b4d638062eecb536b67
+	sha256sums = SKIP
 
 pkgname = foam-extend-git
 
