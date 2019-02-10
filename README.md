@@ -14,7 +14,7 @@ change into the directory of the `foam-exted-git`-package:
 `cd archlinux-pkgs/foam-extend-git`
 As the build process is going to take a considerable ammount of time, allocate some space on the system-memory to improve performance (make sure you have enough):
 ```bash
-sudo mount -o remount,size=8G,noatime /tmp
+sudo mount -o remount,size=11G,noatime /tmp
 sudo mkdir /tmp/chroot
 export CHROOT=/tmp/chroot
 ```

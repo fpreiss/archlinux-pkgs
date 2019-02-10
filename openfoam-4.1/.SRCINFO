@@ -1,0 +1,26 @@
+pkgbase = openfoam-4.1
+	pkgdesc = The open source CFD toolbox
+	pkgver = 4.1
+	pkgrel = 1
+	url = http://www.openfoam.org
+	install = openfoam-4.1.install
+	arch = x86_64
+	license = GPL
+	depends = bzip2
+	depends = parmetis
+	depends = scotch
+	depends = boost
+	depends = flex
+	depends = cgal
+	depends = qt4
+	source = openfoam-4.1.tar.gz::https://github.com/OpenFOAM/OpenFOAM-4.x/archive/version-4.1.tar.gz
+	source = thrdpart-4.1.tar.gz::https://github.com/OpenFOAM/ThirdParty-4.x/archive/version-4.1.tar.gz
+	source = src.patch
+	source = settings.patch
+	sha256sums = 2de18de64e7abdb1b649ad8e9d2d58b77a2b188fb5bcb6f7c2a038282081fd31
+	sha256sums = a337794f3eba3fec7ed236e220a9e7b18c5171f5211fd9dd4a2e547d4780cc52
+	sha256sums = c26243ebf44eaaedb412f810cd2a9df5138e38540112b5e25065ded3b69ae871
+	sha256sums = b4ee4f9604ae64132dab682d7a7730df834173c152e38796d93372cd402c1858
+
+pkgname = openfoam-4.1
+

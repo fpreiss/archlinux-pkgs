@@ -12,6 +12,8 @@ _gitbranch=4.x
 _gitopenfoam=$_distpkgname-$_gitbranch
 _gitthrdpart=ThirdParty-$_gitbranch
 
+CFLAGS="-march=x86-64 -mtune=generic -O2 -pipe"
+CXXFLAGS="-march=x86-64 -mtune=generic -O2 -pipe"
 
 pkgver=4.1
 pkgrel=1
@@ -23,18 +25,21 @@ depends=('bzip2' 'parmetis' 'scotch' 'boost' 'flex' 'cgal' 'qt4')
 source=("openfoam-4.1.tar.gz::https://github.com/OpenFOAM/$_gitopenfoam/archive/version-$pkgver.tar.gz"
         "thrdpart-4.1.tar.gz::https://github.com/OpenFOAM/$_gitthrdpart/archive/version-$pkgver.tar.gz"
         "src.patch"
+        "settings.patch"
 )
 #https://openfoamwiki.net/index.php/Installation/Linux/OpenFOAM-4.x
 install="${pkgname}.install"
 sha256sums=('2de18de64e7abdb1b649ad8e9d2d58b77a2b188fb5bcb6f7c2a038282081fd31'
             'a337794f3eba3fec7ed236e220a9e7b18c5171f5211fd9dd4a2e547d4780cc52'
-            '4ec0bb2499ad03e82cc44d1bb04ae852d783bb75aad49f6befcdb87cb2de7012'
+            'c26243ebf44eaaedb412f810cd2a9df5138e38540112b5e25065ded3b69ae871'
+            'b4ee4f9604ae64132dab682d7a7730df834173c152e38796d93372cd402c1858'
 )
 
 prepare() {
   mv "$srcdir/$_gitopenfoam-version-$pkgver" "$srcdir/$_distpkgname-$pkgver"
   mv "$srcdir/$_gitthrdpart-version-$pkgver" "$srcdir/ThirdParty-$pkgver"
   patch -p1 < src.patch
+  patch -p1 < settings.patch
   echo "export QT_SELECT=qt4" >> "$srcdir/$_distpkgname-$pkgver/etc/bashrc"
   sed -i 's/wmake foamyQuadMesh/# wmake foamyQuadMesh/g'  "$srcdir/$_distpkgname-$pkgver/applications/utilities/mesh/generation/foamyMesh/Allwmake"
 }
